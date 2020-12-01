@@ -18,6 +18,7 @@ public class ColorGrid {
         colorGrid.search();
     }
 
+    // generating a color grid using a two dimensional array
     void createColorGrid(int rows, int cols) {
         colorGridArr = new Node[rows][cols];
         for (int r = 0; r < rows; r++) {
@@ -42,6 +43,7 @@ public class ColorGrid {
         for (int r = 0; r < colorGridArr.length; r++) {
             for (int c = 0; c < colorGridArr[0].length; c++) {
                 Node currentNode = colorGridArr[r][c];
+                // collecting the valid surrounding nodes to a list
                 ArrayList<Node> surroundingNodes = new ArrayList<>();
                 if (0 <= c - 1) {
                     surroundingNodes.add(colorGridArr[r][c - 1]);
@@ -55,26 +57,27 @@ public class ColorGrid {
                 if (colorGridArr.length > r + 1) {
                     surroundingNodes.add(colorGridArr[r + 1][c]);
                 }
+                //getting the color matched node list from the surrounding node list
                 List<Node> colorMatched = surroundingNodes
                         .stream()
                         .filter(node -> node.getColorCode().equals(currentNode.getColorCode()))
                         .collect(Collectors.toList());
-
+                //if there is at least single node with an assigned color group number, assign it for all surrounding nodes.
                 colorMatched.stream().filter(node -> 0 != node.getChunkNumber()).findFirst().ifPresent(node -> {
                     colorMatched.forEach(node1 -> node1.setChunkNumber(node.getChunkNumber()));
                 });
-
                 List<Node> colorMatchedWithChunkNo = surroundingNodes
                         .stream()
                         .filter(node -> node.getColorCode().equals(currentNode.getColorCode()) && 0 != node.getChunkNumber())
                         .collect(Collectors.toList());
-
                 if (colorMatchedWithChunkNo.isEmpty()) {
                     colorMatchedWithChunkNo = surroundingNodes
                             .stream()
                             .filter(node -> node.getColorCode().equals(currentNode.getColorCode()))
                             .collect(Collectors.toList());
                 }
+                //if there's a single surrounding node with a color match, check for the color group number and assign for the current node.
+                //if color group number is 0 on the color group map, assign 1, if not 0 increment the number by 1 and assign to the current node.
                 colorMatchedWithChunkNo.stream().findFirst().ifPresent(node -> {
                     if (0 != node.getChunkNumber()) {
                         currentNode.setChunkNumber(node.getChunkNumber());
@@ -88,6 +91,7 @@ public class ColorGrid {
                         }
                     }
                 });
+                //if no color matched, increment the group number on the map and assign it for the current node.
                 if (colorMatched.isEmpty()) {
                     colorChunkNumberMap.put(currentNode.getColorCode(), colorChunkNumberMap.get(currentNode.getColorCode()) + 1);
                     currentNode.setChunkNumber(colorChunkNumberMap.get(currentNode.getColorCode()));
@@ -103,6 +107,7 @@ public class ColorGrid {
             }
             System.out.println();
         }
+        //collecting the same color node chunks into a map
         HashMap<String, ArrayList<Node>> colorChunkMap = new HashMap<>();
         for (int r = 0; r < colorGridArr.length; r++) {
             for (int c = 0; c < colorGridArr[0].length; c++) {
@@ -119,6 +124,7 @@ public class ColorGrid {
             }
         }
         System.out.println();
+        //calculating the largest same color node chunk from the map
         String largestChunkName = "";
         int largestSize = 0;
         for (Map.Entry<String, ArrayList<Node>> map : colorChunkMap.entrySet()) {
@@ -130,6 +136,7 @@ public class ColorGrid {
                 largestSize = map.getValue().size();
             }
         }
+        //printing the result
         System.out.println("the largest connecting block of\n" +
                 "nodes with the same color is " + largestChunkName + ".");
         System.out.println();
